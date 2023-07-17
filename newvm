@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x
+set -x
 vmhost=${VMHOST:-abeast1-sesa.bu.edu}
 pre="ssh -t $vmhost"
 arch=$($pre uname -i)
