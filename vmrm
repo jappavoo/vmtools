@@ -1,0 +1,12 @@
+#!/bin/bash
+#set -x
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+pre="ssh -t $vmhost"
+target=$1
+
+
+[[ -z $target ]] && echo "USAGE: $0 <name>" && exit -1
+
+
+$pre "virsh destroy $target; virsh undefine $target"
+

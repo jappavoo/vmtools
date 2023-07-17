@@ -1,0 +1,27 @@
+#!/bin/bash
+VMHOST=don-sesa.bu.edu
+
+if [[ $(hostname) != $VMHOST ]]; then
+    PRECMD="ssh $VMHOST"
+else
+    unset PRECMD
+fi
+VIRSH="$PRECMD virsh"
+
+name=$1
+
+
+
+if [[ -z $name ]]; then
+    echo "USAGE: $0 <name> [extra xml virsh network options" >> /dev/stderr
+    echo "Existing networks:" >> /dev/stderr
+    $VIRSH net-list --all  >> /dev/stderr
+    exit -1
+fi
+options="<bridge name=\"${name}-br\" macTableManager=\"libvirt\"/>"
+
+shift
+options="${options}$*"
+echo "<network><name>$name</name>$options</network>" | $VIRSH net-define /dev/stdin
+
+

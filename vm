@@ -1,0 +1,29 @@
+#!/bin/bash
+#set -x
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+pre="ssh -t $vmhost"
+domain=$1
+arch=$($pre uname -i)
+base=${VMBASEVM:-basevm-$arch}
+
+if [[ -z $domain ]]; then
+    echo "USAGE:vm <name>"
+    echo "  where name is a the name of one of your  existing kele vms:"
+    $pre virsh list --all | grep -v $base
+    echo "  You can use newkele to create a new one from the base."
+    echo "  Base vm is $base ... you should avoid using this one"
+    exit -1
+fi
+
+# set background to black
+echo -e "\033]11;#000000\007"
+# set foreground to red
+echo -e "\033]10;#FF0000\007"
+
+if ! $pre virsh console --force $domain; then
+   $pre virsh start $domain
+   if ! $pre virsh console --force $domain; then
+       echo "WTF: can't seem to start or attach to kele console" > /dev/stderr
+       exit -1
+   fi
+fi

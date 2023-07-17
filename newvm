@@ -1,0 +1,14 @@
+#!/bin/bash
+#set -x
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+pre="ssh -t $vmhost"
+arch=$($pre uname -i)
+base=${VMBASEVM:-basevm-$arch}
+
+target=$1
+
+[[ -z $target ]] && echo "USAGE: $0 <newkelename>" && exit -1
+
+
+$pre virt-clone --original $base --name $target  --auto-clone
+
