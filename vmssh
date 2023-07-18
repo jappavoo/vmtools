@@ -1,0 +1,31 @@
+#!/bin/bash
+#set -x
+vmtooldir=$(dirname $(readlink -f $0))
+
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+if [[ $vmhost != $(hostname) ]]; then
+    pre="ssh -x $vmhost"
+    pretty="ssh -x -t $vmhost"
+else
+    unset pre
+    unset pretty
+fi
+arch=${VMARCH:-$($pre uname -i)}
+base=${VMBASEVM:-basevm-$arch}
+user=${VMUSER:-user}
+
+domain=$1
+
+
+if [[ -z $domain ]]; then
+    echo "USAGE:vm <name>"
+    echo "  where name is a the name of one of your  existing kele vms:"
+    $pre virsh list --all | grep -v $base
+    echo "  You can use newkele to create a new one from the base."
+    echo "  Base vm is $base ... you should avoid using this one"
+    exit -1
+fi
+
+ip=$($vmtooldir/vmip $domain)
+
+$pretty ssh $user@$ip

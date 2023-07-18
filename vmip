@@ -1,0 +1,32 @@
+#!/bin/bash
+#set -x
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+if [[ $vmhost != $(hostname) ]]; then
+    pre="ssh -x $vmhost"
+    pretty="ssh -x -t $vmhost"
+else
+    unset pre
+    unset pretty
+fi
+arch=${VMARCH:-$($pre uname -i)}
+base=${VMBASEVM:-basevm-$arch}
+ifsource=${VMSSHIFSOURCE:-virbr0}
+domain=$1
+
+if [[ -z $domain ]]; then
+    echo "USAGE: $0 <vm name>"
+    exit -1
+fi	 
+
+mac=$($pre virsh domiflist $domain | grep $ifsource)
+mac=${mac##* }
+
+ip=$($pre arp -an | grep $mac)
+
+ip=${ip##*(}
+ip=${ip%%)*}
+echo $ip
+
+
+
+
