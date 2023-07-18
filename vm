@@ -24,9 +24,9 @@ if [[ -z $domain ]]; then
 fi
 
 # set background to black
-echo -e "\033]11;#000000\007"
+#echo -e "\033]11;#000000\007"
 # set foreground to red
-echo -e "\033]10;#FFFFF\007"
+#echo -e "\033]10;#FFFFF\007"
 
 if ! $pretty virsh console --force $domain; then
    $pre virsh start $domain
