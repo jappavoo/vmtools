@@ -16,5 +16,6 @@ domain=$1
 [[ -z $domain ]] && echo "USAGE: $0 <name>" && exit -1
 
 
-$pre "virsh destroy $domain; virsh undefine --nvram $domain"
+$pre virsh destroy $domain
+$pre virsh undefine --nvram $domain
 
