@@ -1,11 +1,15 @@
 #!/bin/bash
-VMHOST=don-sesa.bu.edu
-
-if [[ $(hostname) != $VMHOST ]]; then
-    PRECMD="ssh $VMHOST"
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+if [[ $vmhost != $(hostname) ]]; then
+    pre="ssh -x $vmhost"
+    pretty="ssh -x -t $vmhost"
 else
-    unset PRECMD
+    unset pre
+    unset pretty
 fi
+arch=${VMARCH:-$($pre uname -i)}
+base=${VMBASEVM:-basevm-$arch}
+
 VIRSH="$PRECMD virsh"
 
 name=$1

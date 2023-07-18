@@ -13,8 +13,8 @@ base=${VMBASEVM:-basevm-$arch}
 
 domain=$1
 
-[[ -z $domain ]] && echo "USAGE: $0 <name>" && exit -1
+[[ -z $domain ]] && echo "USAGE: $0 <newvmname>" && exit -1
 
 
-$pre "virsh destroy $domain; virsh undefine --nvram $domain"
+$pre virt-clone --original $base --name $domain  --auto-clone
 

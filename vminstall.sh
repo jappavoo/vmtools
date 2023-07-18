@@ -1,12 +1,13 @@
-total_memory=$(free -m | awk '/^Mem:/{print $2}')
-ram_allocation=$((total_memory * 3 / 4))
-total_cores=$(nproc)
+total_memory=${VMMEMORY:-$(free -m | awk '/^Mem:/{print $2}')}
+ram_allocation=${VMRAM:-$((total_memory * 3 / 4))}
+total_cores=${VMCORES:-$(nproc)}
 ARCH=$(uname -i)
 DOMAIN=${1:-basevm-$ARCH}
 VMUSER=${2:-user}
 VMPASSWD=${3:-user}
+FEDORARELEASE=38
 
-LOCATION=${LOCATION:-"https://download.fedoraproject.org/pub/fedora/linux/releases/38/Everything/$(uname -i)/os/"}
+LOCATION=${LOCATION:-"https://download.fedoraproject.org/pub/fedora/linux/releases/FEDORARELEASE/Everything/$(uname -i)/os/"}
 
 if [[ -z $DOMAIN ]]; then
     echo "USAGE: $0 <DOMAIN NAME>"
@@ -20,7 +21,7 @@ cat >$DOMAIN.ks <<EOF
 # System authorization information
 # auth --enableshadow --passalgo=sha512
 
-# Use the Fedora 36 installation media
+# Use the Fedora installation media
 url --url="$LOCATION"
 
 # Run the setup agent on first boot
