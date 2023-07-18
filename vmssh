@@ -28,4 +28,6 @@ fi
 
 ip=$($vmtooldir/vmip $domain)
 
-$pretty ssh $user@$ip
+shift
+
+$pretty ssh $user@$ip $@

@@ -16,10 +16,10 @@ domain=$1
 
 if [[ -z $domain ]]; then
     echo "USAGE:vm <name>"
-    echo "  where name is a the name of one of your  existing kele vms:"
+    echo "  where name is a the name of one of your  existing vms:"
     $pre virsh list --all | grep -v $base
-    echo "  You can use newkele to create a new one from the base."
-    echo "  Base vm is $base ... you should avoid using this one"
+    echo "  You can use vmnew to create a new one from the base."
+    echo "  Base vm is $base ... you should not use this one directly"
     exit -1
 fi
 
