@@ -1,17 +1,59 @@
-total_memory=${VMMEMORY:-$(free -m | awk '/^Mem:/{print $2}')}
-ram_allocation=${VMRAM:-$((total_memory * 3 / 4))}
-total_cores=${VMCORES:-$(nproc)}
+#!/bin/bash
+
+scriptdir=$(dirname $(realpath $0))
+configdir=$scriptdir/config
+
+# defaults for launching vms from the created image
+[[ -z $VMMEM ]] && [[ -a $configdir/VMMEM ]] && VMMEM=$(cat $configdir/VMMEM);
+VMMEM=${VMMEM:-8G}
+[[ -z $VMCPUS ]] && [[ -a $configdir/VMCPUS ]] && VMCPUS=$(cat $configdir/VMCPUS);
+VMCPUS=${VMCPUS:-4}
+[[ -z $VMDISKSIZE ]] && [[ -a $configdir/VMDISKSIZE ]] && VMDISKSIZE=$(cat $configdir/VMDISKSIZE);
+VMDISKSIZE=${VMDISKSIZE:-200}
+
+
+total_memory=$(free -m | awk '/^Mem:/{print $2}')
+# try to do the install using 1/4 of the free memory
+# install_ram_allocation=$((total_memory * 1 / 4))
+# default to do the install with the same amount of memory the VM default memory
+# size will be
+install_ram_allocation=${VMMEM}
+# try go do the install using 1/2 of the cores
+# default to do the install with the same amount of memory the VM default memory
+# size will be
+# install_total_cores=$(($(nproc)/2))
+#install_total_cores=$(($(nproc)/2))
+install_total_cores=${VMCPUS}
+
+
+
 ARCH=$(uname -i)
 DOMAIN=${1:-basevm-$ARCH}
 VMUSER=${2:-user}
 VMPASSWD=${3:-user}
 FEDORARELEASE=38
+VMSDIR=vms
 
-LOCATION=${LOCATION:-"https://download.fedoraproject.org/pub/fedora/linux/releases/FEDORARELEASE/Everything/$(uname -i)/os/"}
+LOCATION=${LOCATION:-"https://download.fedoraproject.org/pub/fedora/linux/releases/$FEDORARELEASE/Everything/$(uname -i)/os/"}
+
+info() {
+    echo configdir:$configdir VMMEM:$VMMEM VMCPUS:$VMCPUS VMDISKSIZE:$VMDISKSIZE
+    echo    Install using: memory:$install_ram_allocation cpus:$install_total_cores
+    echo    ARCH:$ARCH DOMAIN:$DOMAIN VMUSER:$VMUSER VMPASSWD:$VMPASSWD
+    echo    FEDORARELEASE:$FEDORARELEASE
+    echo    FEDORAURL:$LOCATION
+    echo    VMSDIR:$VMSDIR DOMAIN: $DOMAIN
+}
 
 if [[ -z $DOMAIN ]]; then
     echo "USAGE: $0 <DOMAIN NAME>"
     exit -1
+fi
+
+info
+
+if [[ ! -d $VMSDIR ]]; then
+    mkdir ${VMSDIR}
 fi
 
 if [[ ! -a $DOMAIN.ks ]]; then
@@ -99,12 +141,13 @@ make
 EOF
 fi
 
+
 virt-install \
   --name $DOMAIN \
-  --ram $ram_allocation \
-  --disk path="$(pwd)/disk/$DOMAIN.qcow2,size=200,format=qcow2" \
+  --memory="memory=$install_ram_allocation" \
+  --disk path="$(pwd)/${VMSDIR}/$DOMAIN.qcow2,size=${VMDISKSIZE},format=qcow2" \
   --check disk_size=off \
-  --vcpus $total_cores \
+  --vcpus $install_total_cores \
   --network bridge=virbr0 \
   --graphics none \
   --console pty,target_type=serial \

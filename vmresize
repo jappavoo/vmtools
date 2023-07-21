@@ -1,0 +1,40 @@
+#!/bin/bash
+#set -x
+vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+if [[ $vmhost != $(hostname) ]]; then
+    pre="ssh -x $vmhost"
+    pretty="ssh -x -t $vmhost"
+else
+    unset pre
+    unset pretty
+fi
+arch=${VMARCH:-$($pre uname -i)}
+base=${VMBASEVM:-basevm-$arch}
+
+domain=$1
+cpus=$2
+ram=$3
+
+if [[ -z $domain ]]; then
+    echo "USAGE:vmvresize <name> [cpus] [ram]"
+    echo "  where name is a the name of one of your  existing vms:"
+    $pre virsh list --all | grep -v $base
+    echo "  You can use vmnew to create a new one from the base."
+    echo "  Base vm is $base ... you should not use this one directly"
+    exit -1
+fi
+
+
+if [[ -z $cpus && -z $ram ]]; then
+  echo "$DOMAIN: cpus: $($pre virsh vcpucount)"
+  
+$pre virsh setmem ${DOMAIN} ${VMMEM} --config
+$pre virsh setvcpus ${DOMAIN} ${VMCPUS} --config
+
+if ! $pretty virsh console --force $domain; then
+   $pre virsh start $domain
+   if ! $pretty virsh console --force $domain; then
+       echo "WTF: can't seem to start or attach to kele console" > /dev/stderr
+       exit -1
+   fi
+fi
