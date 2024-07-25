@@ -1,6 +1,16 @@
 #!/bin/bash
 #set -x
-vmhost=${VMHOST:-abeast1-sesa.bu.edu}
+
+scriptdir=$(dirname $(realpath $0))
+configdir=$scriptdir/config
+
+
+[[ -z $VMARCH ]] && [[ -a $configdir/VMARCH ]] \
+    && VMARCH=$(cat $configdir/VMARCH)
+[[ -z $VMHOST ]] && [[ -a $configdir/${VMARCH}.host ]] \
+    && VMHOST=$(cat $configdir/${VMARCH}.host)
+vmhost=${VMHOST}
+
 if [[ $vmhost != $(hostname) ]]; then
     pre="ssh -x $vmhost"
     pretty="ssh -x -t $vmhost"
