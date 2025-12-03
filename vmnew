@@ -10,7 +10,7 @@ configdir=$scriptdir/config
     && VMHOST=$(cat $configdir/${VMARCH}.host)
 vmhost=${VMHOST}
 
-if [[ $vmhost != $(hostname) ]]; then
+if [[ $vmhost != $(hostname) && $vmhost != localhost ]]; then
     pre="ssh -x $vmhost"
     pretty="ssh -x -t $vmhost"
 else

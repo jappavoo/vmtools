@@ -1,6 +1,6 @@
 #!/bin/bash
 vmhost=${VMHOST:-abeast1-sesa.bu.edu}
-if [[ $vmhost != $(hostname) ]]; then
+if [[ $vmhost != $(hostname) && $vmhost != localhost ]]; then
     pre="ssh -x $vmhost"
     pretty="ssh -x -t $vmhost"
 else
