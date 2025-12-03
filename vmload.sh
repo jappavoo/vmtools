@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 
-ARCH=$(uname -i)
+ARCH=$(uname -m)
 DOMAIN=${VMBASEVM:-basevm-$ARCH}
 VMSDIR=${VMSDIR:-vms}
 DISK=${VMSDIR}/${DOMAIN}.qcow2
